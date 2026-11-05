@@ -9,15 +9,18 @@ type Task = {
   title: string;
   completed: boolean;
   dueDate?: string;
+  priority: "High" | "Medium" | "Low";
 };
+
 type Filter = "All" | "Active" | "Completed";
 
 export default function Home() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
- const [isLoaded, setIsLoaded] = useState(false);
- const [dueDate, setDueDate] = useState("");
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [dueDate, setDueDate] = useState("");
+  const [priority, setPriority] = useState<"High" | "Medium" | "Low">("Medium");
 
 useEffect(() => {
   const savedTasks = localStorage.getItem("tasks");
@@ -53,6 +56,7 @@ useEffect(() => {
   title: task.trim(),
   completed: false,
   dueDate: dueDate || undefined,
+  priority: priority,
 };
 
         setTasks([...tasks, newTask]);
@@ -74,6 +78,7 @@ useEffect(() => {
     ...item,
     title: task.trim(),
     dueDate: dueDate || undefined,
+    priority: priority,
   }
           : item
       )
@@ -81,6 +86,7 @@ useEffect(() => {
 
     setTask("");
     setDueDate("");
+    setPriority("Medium");
     setEditingId(null);
   }
 
@@ -161,9 +167,9 @@ const localToday = `${today.getFullYear()}-${String(
 
         <form
   onSubmit={editingId !== null ? updateTask : addTask}
-  className="flex gap-2"
+  className="flex w-full flex-col gap-3"
 >
-          <div className="flex flex-1 gap-2">
+         <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
   <input
     type="text"
     placeholder="Enter your task..."
@@ -178,15 +184,28 @@ const localToday = `${today.getFullYear()}-${String(
     onChange={(event) => setDueDate(event.target.value)}
     className="rounded-lg border border-gray-300 px-3 py-3 text-gray-700"
   />
+
+  <select
+  value={priority}
+  onChange={(event) =>
+    setPriority(event.target.value as "High" | "Medium" | "Low")
+  }
+  className="rounded-lg border border-gray-300 px-3 py-3 text-gray-700"
+>
+  <option value="High">High Priority</option>
+  <option value="Medium">Medium Priority</option>
+  <option value="Low">Low Priority</option>
+</select>
+
 </div>
 
-          <button
+         <button
   type="submit"
-  className="rounded-lg bg-blue-600 px-5 py-3 font-medium text-white hover:bg-blue-700"
+  className="w-fit justify-self-start shrink-0 whitespace-nowrap rounded-lg bg-blue-600 px-5 py-3 font-medium text-white hover:bg-blue-700"
 >
   {editingId !== null ? "Update Task" : "Add Task"}
 </button>
-        </form>
+</form>
 
 {/* Task Filter Buttons */}
 <div className="mt-6 flex gap-2">
@@ -240,6 +259,17 @@ const localToday = `${today.getFullYear()}-${String(
     <span className={item.completed ? "line-through text-gray-400" : ""}>
       {item.title}
     </span>
+    <span
+  className={`rounded-full px-2 py-1 text-xs font-medium ${
+    (item.priority ?? "Medium") === "High"
+      ? "bg-red-100 text-red-700"
+      : (item.priority ?? "Medium") === "Medium"
+      ? "bg-yellow-100 text-yellow-700"
+      : "bg-green-100 text-green-700"
+  }`}
+>
+  {item.priority ?? "Medium"}
+</span>
     {item.dueDate && (
   <span
     className={
@@ -257,10 +287,11 @@ const localToday = `${today.getFullYear()}-${String(
   <div className="flex gap-3">
   <button
     onClick={() => {
-       setTask(item.title);
-       setDueDate(item.dueDate ?? "");
-       setEditingId(item.id);
-    }}
+  setTask(item.title);
+  setDueDate(item.dueDate ?? "");
+  setPriority(item.priority);
+  setEditingId(item.id);
+}}
     className="text-blue-500 hover:text-blue-700"
   >
     Edit
