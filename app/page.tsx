@@ -2,7 +2,7 @@
 "use client";
 
 import { Donegal_One } from "next/font/google";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Task = {
   id: number;
@@ -15,6 +15,28 @@ export default function Home() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
+ const [isLoaded, setIsLoaded] = useState(false);
+
+useEffect(() => {
+  const savedTasks = localStorage.getItem("tasks");
+
+  if (savedTasks) {
+    try {
+      setTasks(JSON.parse(savedTasks));
+    } catch {
+      console.error("Unable to load saved tasks.");
+    }
+  }
+
+  setIsLoaded(true);
+}, []);
+
+useEffect(() => {
+  if (isLoaded) {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }
+}, [tasks, isLoaded]);
+
   const [filter, setFilter] = useState<Filter>("All");
 
   function addTask(event: React.FormEvent<HTMLFormElement>) {
