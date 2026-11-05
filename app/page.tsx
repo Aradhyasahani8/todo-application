@@ -9,11 +9,13 @@ type Task = {
   title: string;
   completed: boolean;
 };
+type Filter = "All" | "Active" | "Completed";
 
 export default function Home() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [filter, setFilter] = useState<Filter>("All");
 
   function addTask(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,6 +53,18 @@ export default function Home() {
     setEditingId(null);
   }
 
+  const filteredTasks = tasks.filter((item) => {
+  if (filter === "Active") {
+    return !item.completed;
+  }
+
+  if (filter === "Completed") {
+    return item.completed;
+  }
+
+  return true;
+});
+
   return (
     <main className="min-h-screen bg-gray-100 p-8">
       <div className="mx-auto max-w-xl rounded-xl bg-white p-8 shadow-lg">
@@ -83,10 +97,28 @@ export default function Home() {
 </button>
         </form>
 
-        <div className="mt-6">
-          <h2 className="mb-3 text-lg font-semibold text-gray-700">
-            My Tasks ({tasks.length})
-          </h2>
+{/* Task Filter Buttons */}
+<div className="mt-6 flex gap-2">
+  {(["All", "Active", "Completed"] as Filter[]).map((option) => (
+    <button
+      key={option}
+      type="button"
+      onClick={() => setFilter(option)}
+      className={`rounded-lg px-4 py-2 ${
+        filter === option
+          ? "bg-blue-600 text-white"
+          : "bg-gray-200 text-gray-700"
+      }`}
+    >
+      {option}
+    </button>
+  ))}
+</div>
+
+<div className="mt-6">
+  <h2 className="mb-3 text-lg font-semibold text-gray-700">
+    My Tasks ({tasks.length})
+  </h2>
 
           {tasks.length === 0 ? (
             <p className="text-gray-400">
@@ -94,7 +126,7 @@ export default function Home() {
             </p>
           ) : (
             <ul className="space-y-3">
-              {tasks.map((item) => (
+              {filteredTasks.map((item) => (
                <li
   key={item.id}
   className="flex items-center justify-between rounded-lg border border-gray-200 p-4 text-gray-700"
