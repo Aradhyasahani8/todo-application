@@ -87,6 +87,16 @@ useEffect(() => {
   return true;
 });
 
+const totalTasks = tasks.length;
+
+const activeTasks = tasks.filter(
+  (item) => !item.completed
+).length;
+
+const completedTasks = tasks.filter(
+  (item) => item.completed
+).length;
+
   return (
     <main className="min-h-screen bg-gray-100 p-8">
       <div className="mx-auto max-w-xl rounded-xl bg-white p-8 shadow-lg">
@@ -98,6 +108,41 @@ useEffect(() => {
         <p className="mb-6 text-gray-500">
           Manage your daily tasks easily.
         </p>
+
+        {/* Task Counter Dashboard */}
+<div className="mb-6 grid grid-cols-3 gap-3">
+
+  {/* Total Tasks */}
+  <div className="rounded-lg bg-blue-50 p-4 text-center">
+    <h2 className="text-2xl font-bold text-blue-600">
+      {totalTasks}
+    </h2>
+    <p className="text-sm text-gray-600">
+      Total Tasks
+    </p>
+  </div>
+
+  {/* Active Tasks */}
+  <div className="rounded-lg bg-yellow-50 p-4 text-center">
+    <h2 className="text-2xl font-bold text-yellow-600">
+      {activeTasks}
+    </h2>
+    <p className="text-sm text-gray-600">
+      Active
+    </p>
+  </div>
+
+  {/* Completed Tasks */}
+  <div className="rounded-lg bg-green-50 p-4 text-center">
+    <h2 className="text-2xl font-bold text-green-600">
+      {completedTasks}
+    </h2>
+    <p className="text-sm text-gray-600">
+      Completed
+    </p>
+  </div>
+
+</div>
 
         <form
   onSubmit={editingId !== null ? updateTask : addTask}
