@@ -8,6 +8,7 @@ type Task = {
   id: number;
   title: string;
   completed: boolean;
+  dueDate?: string;
 };
 type Filter = "All" | "Active" | "Completed";
 
@@ -16,6 +17,7 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
  const [isLoaded, setIsLoaded] = useState(false);
+ const [dueDate, setDueDate] = useState("");
 
 useEffect(() => {
   const savedTasks = localStorage.getItem("tasks");
@@ -50,10 +52,12 @@ useEffect(() => {
   id: Date.now(),
   title: task.trim(),
   completed: false,
+  dueDate: dueDate || undefined,
 };
 
         setTasks([...tasks, newTask]);
     setTask("");
+    setDueDate("");
   }
 
   function updateTask(event: React.FormEvent<HTMLFormElement>) {
@@ -66,12 +70,17 @@ useEffect(() => {
     setTasks(
       tasks.map((item) =>
         item.id === editingId
-          ? { ...item, title: task.trim() }
+          ? {
+    ...item,
+    title: task.trim(),
+    dueDate: dueDate || undefined,
+  }
           : item
       )
     );
 
     setTask("");
+    setDueDate("");
     setEditingId(null);
   }
 
@@ -96,6 +105,12 @@ const activeTasks = tasks.filter(
 const completedTasks = tasks.filter(
   (item) => item.completed
 ).length;
+
+const today = new Date();
+
+const localToday = `${today.getFullYear()}-${String(
+  today.getMonth() + 1
+).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
   return (
     <main className="min-h-screen bg-gray-100 p-8">
@@ -148,13 +163,22 @@ const completedTasks = tasks.filter(
   onSubmit={editingId !== null ? updateTask : addTask}
   className="flex gap-2"
 >
-          <input
-            type="text"
-            placeholder="Enter your task..."
-            value={task}
-            onChange={(event) => setTask(event.target.value)}
-            className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-gray-800 outline-none focus:border-blue-500"
-          />
+          <div className="flex flex-1 gap-2">
+  <input
+    type="text"
+    placeholder="Enter your task..."
+    value={task}
+    onChange={(event) => setTask(event.target.value)}
+    className="min-w-0 flex-1 rounded-lg border border-gray-300 px-4 py-3 text-gray-800 outline-none focus:border-blue-500"
+  />
+
+  <input
+    type="date"
+    value={dueDate}
+    onChange={(event) => setDueDate(event.target.value)}
+    className="rounded-lg border border-gray-300 px-3 py-3 text-gray-700"
+  />
+</div>
 
           <button
   type="submit"
@@ -216,13 +240,26 @@ const completedTasks = tasks.filter(
     <span className={item.completed ? "line-through text-gray-400" : ""}>
       {item.title}
     </span>
+    {item.dueDate && (
+  <span
+    className={
+      !item.completed && item.dueDate < localToday
+        ? "text-xs font-medium text-red-600"
+        : "text-xs text-gray-500"
+    }
+  >
+    Due: {item.dueDate}
+    {!item.completed && item.dueDate < localToday && " (Overdue)"}
+  </span>
+)}
   </div>
 
   <div className="flex gap-3">
   <button
     onClick={() => {
-      setTask(item.title);
-      setEditingId(item.id);
+       setTask(item.title);
+       setDueDate(item.dueDate ?? "");
+       setEditingId(item.id);
     }}
     className="text-blue-500 hover:text-blue-700"
   >
