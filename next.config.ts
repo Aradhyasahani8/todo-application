@@ -1,10 +1,19 @@
+
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: "export",
+  basePath: "/todo-application",
+  trailingSlash: true,
+
+  images: {
+    unoptimized: true,
+  },
+
   experimental: {
     agentFeedback: true,
   },
+
   turbopack: {
     rules: {
       "*.css": {
